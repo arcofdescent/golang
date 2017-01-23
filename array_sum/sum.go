@@ -9,12 +9,14 @@ import "strconv"
 func main() {
 
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter array elems separated by space: ")
+
+	num_elems, _ := reader.ReadString('\n')
+	num_elems = strings.TrimRight(num_elems, "\n")
+
 	elem_string, _ := reader.ReadString('\n')
 	elem_string = strings.TrimRight(elem_string, "\n")
 
 	elems := strings.Split(elem_string, " ")
-	fmt.Println(elems)
 
 	// sum
 	sum := 0
@@ -23,5 +25,5 @@ func main() {
 		sum += val
 	}
 
-	fmt.Printf("sum: %d\n", sum)
+	fmt.Println(sum)
 }
