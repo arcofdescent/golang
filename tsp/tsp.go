@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var cities = [...]string{"Mumbai", "Delhi", "Bangalore"}
+var cities = [...]string{"Bangalore", "Delhi", "Mumbai"}
 
 // set the distances
 var distance = map[string]float32{
@@ -21,10 +21,43 @@ var distance = map[string]float32{
 }
 
 func main() {
-	fmt.Println("start")
 
-	d := getDistance("Delhi", "Bangalore")
-	fmt.Println(d)
+	var dst float32
+	var min float32
+	var minCity string
+
+	for _, c := range cities {
+		dst = calcDistance(c)
+		fmt.Printf("Origin: %s, Distance: %.2f\n", c, dst)
+
+		if min == 0 {
+			min = dst
+			minCity = c
+		}
+
+		if min > 0 && dst < min {
+			min = dst
+			minCity = c
+		}
+	}
+
+	fmt.Println()
+	fmt.Printf("Origin city should be %s\n", minCity)
+}
+
+func calcDistance(city string) float32 {
+
+	var dst float32
+
+	for _, c := range cities {
+		if c == city {
+			continue
+		}
+
+		dst += getDistance(city, c) * 2
+	}
+
+	return dst
 }
 
 func getDistance(city1 string, city2 string) float32 {
