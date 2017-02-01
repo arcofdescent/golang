@@ -61,6 +61,7 @@ func main() {
 	*/
 }
 
+// taken from Python's lib
 func permutations(iterable []int, r int) [][]int {
 
 	values := [][]int{}
