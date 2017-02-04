@@ -13,8 +13,8 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+	"sort"
 	"strconv"
-	//"sort"
 	//"strings"
 )
 
@@ -87,9 +87,29 @@ func calcShortestRoute(numPoints int, distances []Distance) {
 			id := "P" + strconv.Itoa(v+1)
 			dst_ids = append(dst_ids, id)
 		}
+		dst_ids = append(dst_ids, "P"+strconv.Itoa(val[0]+1))
 		distance_ids = append(distance_ids, dst_ids)
 	}
 	fmt.Printf("distance_ids: %v\n", distance_ids)
+
+	for _, route := range distance_ids {
+		route_pairs := make([][]string, 0)
+		for idx := 0; idx < len(route)-1; idx++ {
+			sorted_pair := []string{route[idx], route[idx+1]}
+			sort.Strings(sorted_pair)
+			fmt.Printf("sorted_pair: %v\n", sorted_pair)
+			route_pairs = append(route_pairs, sorted_pair)
+		}
+
+		fmt.Printf("route_pairs: %v\n", route_pairs)
+
+		dst := getRouteLength(route_pairs)
+	}
+
+}
+
+func getRouteLength(pairs [][]string) float64 {
+
 }
 
 func calcDistanceBetweenPoints(points []Point) []Distance {
