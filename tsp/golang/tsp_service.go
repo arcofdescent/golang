@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
+	//"io"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -28,6 +28,11 @@ type Point struct {
 	Id string
 	X  float64
 	Y  float64
+}
+
+type Result struct {
+	Route  []string
+	Length float64
 }
 
 func main() {
@@ -60,16 +65,25 @@ func calcRoute(w http.ResponseWriter, r *http.Request) {
 	//fmt.Printf("struct: %#v", d)
 
 	distances := calcDistanceBetweenPoints(points)
-	fmt.Printf("distances: %#v\n", distances)
+	//fmt.Printf("distances: %#v\n", distances)
 
-	calcShortestRoute(len(points), distances)
-	//distances_json, _ := json.Marshal(distances)
+	res := calcShortestRoute(len(points), distances)
+	fmt.Printf("res: %#v\n", res)
+	/*
+		res_json, err := json.Marshal(res)
+		if err != nil {
+			fmt.Printf("Error while marshaling: %s\n", err)
+		}
+		fmt.Printf("res_json: %s\n", res_json)
+	*/
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	io.WriteString(w, "OK")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
+	//w.Write(res_json)
 }
 
-func calcShortestRoute(numPoints int, distances []Distance) {
+func calcShortestRoute(numPoints int, distances []Distance) Result {
 
 	idxs := make([]int, 0)
 	for i := 0; i < numPoints; i++ {
@@ -78,7 +92,7 @@ func calcShortestRoute(numPoints int, distances []Distance) {
 	//fmt.Printf("idxs: %v\n", idxs)
 
 	perms := permutations(idxs)
-	fmt.Printf("perms: %v\n", perms)
+	//fmt.Printf("perms: %v\n", perms)
 
 	distance_ids := make([][]string, 0)
 	for _, val := range perms {
@@ -90,26 +104,63 @@ func calcShortestRoute(numPoints int, distances []Distance) {
 		dst_ids = append(dst_ids, "P"+strconv.Itoa(val[0]+1))
 		distance_ids = append(distance_ids, dst_ids)
 	}
-	fmt.Printf("distance_ids: %v\n", distance_ids)
+	//fmt.Printf("distance_ids: %v\n", distance_ids)
+
+	var shortest_route_length float64
+	var shortest_route []string
 
 	for _, route := range distance_ids {
 		route_pairs := make([][]string, 0)
 		for idx := 0; idx < len(route)-1; idx++ {
 			sorted_pair := []string{route[idx], route[idx+1]}
 			sort.Strings(sorted_pair)
-			fmt.Printf("sorted_pair: %v\n", sorted_pair)
+			//fmt.Printf("sorted_pair: %v\n", sorted_pair)
 			route_pairs = append(route_pairs, sorted_pair)
 		}
 
-		fmt.Printf("route_pairs: %v\n", route_pairs)
+		//fmt.Printf("route: %v\n", route)
+		//fmt.Printf("route_pairs: %v\n", route_pairs)
 
-		dst := getRouteLength(route_pairs)
+		dst := getRouteLength(route_pairs, distances)
+		//fmt.Printf("dst: %.2f\n", dst)
+
+		if shortest_route_length == 0 {
+			shortest_route_length = dst
+			shortest_route = route
+		}
+
+		if dst < shortest_route_length {
+			shortest_route_length = dst
+			shortest_route = route
+		}
 	}
 
+	fmt.Printf("shortest_route: %v\n", shortest_route[:len(shortest_route)-1])
+	fmt.Printf("shortest_route_length: %.2f\n", shortest_route_length)
+
+	res := Result{Route: shortest_route[:len(shortest_route)-1], Length: shortest_route_length}
+	return res
 }
 
-func getRouteLength(pairs [][]string) float64 {
+func getRouteLength(pairs [][]string, distances []Distance) float64 {
 
+	var dst float64
+	for _, pair := range pairs {
+		dst += getDistance(pair[0], pair[1], distances)
+	}
+
+	return dst
+}
+
+func getDistance(p1 string, p2 string, distances []Distance) float64 {
+
+	for _, d := range distances {
+		if d.Id1 == p1 && d.Id2 == p2 {
+			return d.Distance
+		}
+	}
+
+	return 0
 }
 
 func calcDistanceBetweenPoints(points []Point) []Distance {
@@ -127,7 +178,7 @@ func calcDistanceBetweenPoints(points []Point) []Distance {
 
 		dst := math.Sqrt(((y2 - y1) * (y2 - y1)) + ((x2 - x1) * (x2 - x1)))
 		distance := Distance{Id1: id1, Id2: id2, Distance: dst}
-		fmt.Printf("dst: %#v\n", distance)
+		//fmt.Printf("dst: %#v\n", distance)
 		distances = append(distances, distance)
 	})
 

@@ -18,8 +18,8 @@ class App extends Component {
 
   async calcRoute() {
     let data = await this.getRoute();
-    //let json = JSON.parse(data);
-    console.log(data);
+    let json = JSON.parse(data);
+    console.log({json});
   }
 
   getRoute() {
