@@ -19,8 +19,13 @@ class Map extends Component {
     let x = event.clientX - rect.left;
     let y = event.clientY - rect.top;
 
-    let newPoints = this.state.points.concat([{x: x, y: y}]);
+    let numPoints = this.state.points.length;
+    let newID = 'P' + (numPoints + 1).toString();
+
+    let newPoints = this.state.points.concat([{id: newID, x: x, y: y}]);
     this.setState({points: newPoints});
+
+    window.points = newPoints;
   }
 
   render() {
@@ -29,10 +34,10 @@ class Map extends Component {
 
     for (var i = 0; i < this.state.points.length; i++) {
       points.push(
-        <Point key={i} x={this.state.points[i].x} y={this.state.points[i].y} />
+        <Point key={i} id={this.state.points[i].id} 
+          x={this.state.points[i].x} y={this.state.points[i].y} />
       );
     }
-
 
     return (
       <svg id="map" width="600" height="400" onClick={this.drawPoint}>

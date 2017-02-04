@@ -11,18 +11,23 @@ class App extends Component {
         <Map />
         <br />
         <button onClick={this.calcRoute.bind(this)}>Calculate shortest route</button>
+        <button>Clear</button>
       </div>
     );
   }
 
   async calcRoute() {
-    let json = await this.getRoute();
-    console.log(json);
+    let data = await this.getRoute();
+    //let json = JSON.parse(data);
+    console.log(data);
   }
 
   getRoute() {
     return new Promise((resolve, reject) => {
-      request('http://localhost:8000', 
+      request.post({ 
+          url: 'http://localhost:8000/calcRoute', 
+          form: JSON.stringify(window.points),
+        },
         function(err, response, body) {
           if (err) {
             reject(err); return;
