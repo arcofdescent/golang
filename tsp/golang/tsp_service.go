@@ -13,8 +13,8 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+	"strconv"
 	//"sort"
-	//"strconv"
 	//"strings"
 )
 
@@ -62,8 +62,34 @@ func calcRoute(w http.ResponseWriter, r *http.Request) {
 	distances := calcDistanceBetweenPoints(points)
 	fmt.Printf("distances: %#v\n", distances)
 
+	calcShortestRoute(len(points), distances)
+	//distances_json, _ := json.Marshal(distances)
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	io.WriteString(w, "OK")
+}
+
+func calcShortestRoute(numPoints int, distances []Distance) {
+
+	idxs := make([]int, 0)
+	for i := 0; i < numPoints; i++ {
+		idxs = append(idxs, i)
+	}
+	//fmt.Printf("idxs: %v\n", idxs)
+
+	perms := permutations(idxs)
+	fmt.Printf("perms: %v\n", perms)
+
+	distance_ids := make([][]string, 0)
+	for _, val := range perms {
+		dst_ids := make([]string, 0)
+		for _, v := range val {
+			id := "P" + strconv.Itoa(v+1)
+			dst_ids = append(dst_ids, id)
+		}
+		distance_ids = append(distance_ids, dst_ids)
+	}
+	fmt.Printf("distance_ids: %v\n", distance_ids)
 }
 
 func calcDistanceBetweenPoints(points []Point) []Distance {
