@@ -7,21 +7,21 @@ class Map extends Component {
   constructor() {
     super(...arguments);
     this.drawPoint = this.drawPoint.bind(this);
-
-    /*
-    this.state = {
-      points: [],
-    };
-    */
   }
 
   drawPoint(event) {
-    console.log('drawPoint');
+    //console.log('drawPoint');
+    let numPoints = this.props.points.length;
+
+    if (numPoints === 8) {
+      alert("Maximum 8 :)");
+      return;
+    }
+
     let rect = event.target.getBoundingClientRect();
     let x = event.clientX - rect.left;
     let y = event.clientY - rect.top;
 
-    let numPoints = this.props.points.length;
     let newID = 'P' + (numPoints + 1).toString();
 
     this.props.addPoint({id: newID, x: x, y: y});

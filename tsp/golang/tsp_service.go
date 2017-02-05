@@ -32,7 +32,7 @@ type Point struct {
 
 type Result struct {
 	Route  []string
-	Length float64
+	Length string
 }
 
 func main() {
@@ -138,7 +138,7 @@ func calcShortestRoute(numPoints int, distances []Distance) Result {
 	fmt.Printf("shortest_route: %v\n", shortest_route[:len(shortest_route)-1])
 	fmt.Printf("shortest_route_length: %.2f\n", shortest_route_length)
 
-	res := Result{Route: shortest_route[:len(shortest_route)-1], Length: shortest_route_length}
+	res := Result{Route: shortest_route[:len(shortest_route)-1], Length: fmt.Sprintf("%.2f", shortest_route_length)}
 	return res
 }
 
@@ -167,7 +167,7 @@ func calcDistanceBetweenPoints(points []Point) []Distance {
 
 	distances := make([]Distance, 0)
 
-	comb(len(points), 2, func(c []int) {
+	combinations(len(points), 2, func(c []int) {
 		//fmt.Printf("c: %#v\n", c)
 		id1 := points[c[0]].Id
 		x1 := points[c[0]].X
@@ -214,7 +214,7 @@ func permutations(arr []int) [][]int {
 	return res
 }
 
-func comb(n, m int, emit func([]int)) {
+func combinations(n, m int, emit func([]int)) {
 	s := make([]int, m)
 	last := m - 1
 	var rc func(int, int)

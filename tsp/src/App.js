@@ -13,26 +13,34 @@ class App extends Component {
       points: [],
       result: {
         Route: [],
+        Length: 0,
       },
     };
 
     this.addPoint = this.addPoint.bind(this);
+    this.clearMap = this.clearMap.bind(this);
   }
 
   render() {
     return (
       <div className="App">
+        <h3>Traveling Salesperson problem solved using brute force</h3>
+        <h4>Click on the area below to set the cities (max 8)</h4>
         <Map points={this.state.points} addPoint={this.addPoint} result={this.state.result} />
         <br />
         <button onClick={this.calcRoute.bind(this)}>Calculate shortest route</button>
-        <button>Clear</button>
+        <button onClick={this.clearMap}>Clear</button>
         <Result res={this.state.result} />
       </div>
     );
   }
 
+  clearMap() {
+    this.setState({points: [], result: {Route: [], Length: 0}});
+  }
+
   addPoint(p) {
-    console.log('adding point');
+    //console.log('adding point');
 
     let newPoints = this.state.points.concat([p]);
     this.setState({points: newPoints});
@@ -41,7 +49,7 @@ class App extends Component {
   async calcRoute() {
     let data = await this.getRoute();
     let json = JSON.parse(data);
-    console.log({json});
+    //console.log({json});
     this.setState({result: json});
   }
 
