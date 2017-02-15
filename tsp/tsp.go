@@ -25,7 +25,7 @@ type Result struct {
 	Duration string
 }
 
-func calcShortestRoute(numPoints int, distances []Distance) Result {
+func CalcShortestRoute(numPoints int, distances []Distance) Result {
 
 	idxs := make([]int, 0)
 	for i := 0; i < numPoints; i++ {
@@ -48,59 +48,40 @@ func calcShortestRoute(numPoints int, distances []Distance) Result {
 	}
 	//fmt.Printf("distance_ids: %v\n", distance_ids)
 
-	ch := make(chan float64)
-	var route_lengths []float64
-	//var shortest_route []string
+	var shortest_route_length float64
+	var shortest_route []string
 
 	for _, route := range distance_ids {
+		route_pairs := make([][]string, 0)
+		for idx := 0; idx < len(route)-1; idx++ {
+			sorted_pair := []string{route[idx], route[idx+1]}
+			sort.Strings(sorted_pair)
+			//fmt.Printf("sorted_pair: %v\n", sorted_pair)
+			route_pairs = append(route_pairs, sorted_pair)
+		}
 
-		go getRouteDistance(route, distances, ch)
+		//fmt.Printf("route: %v\n", route)
+		//fmt.Printf("route_pairs: %v\n", route_pairs)
 
-		/*
-			if shortest_route_length == 0 {
-				shortest_route_length = dst
-				//shortest_route = route
-			}
+		dst := getRouteLength(route_pairs, distances)
+		//fmt.Printf("dst: %.2f\n", dst)
 
-			if dst < shortest_route_length {
-				shortest_route_length = dst
-				//shortest_route = route
-			}
-		*/
+		if shortest_route_length == 0 {
+			shortest_route_length = dst
+			shortest_route = route
+		}
+
+		if dst < shortest_route_length {
+			shortest_route_length = dst
+			shortest_route = route
+		}
 	}
 
-	for range distance_ids {
-		route_lengths = append(route_lengths, <-ch)
-	}
+	fmt.Printf("shortest_route: %v\n", shortest_route[:len(shortest_route)-1])
+	fmt.Printf("shortest_route_length: %.2f\n", shortest_route_length)
 
-	fmt.Printf("route_lengths: %v\n", route_lengths)
-	/*
-		fmt.Printf("shortest_route: %v\n", shortest_route[:len(shortest_route)-1])
-		fmt.Printf("shortest_route_length: %.2f\n", shortest_route_length)
-	*/
-
-	/*
-		res := Result{Route: shortest_route[:len(shortest_route)-1],
-			Length: fmt.Sprintf("%.2f", shortest_route_length)}
-		return res
-	*/
-	return Result{}
-}
-
-func getRouteDistance(route []string, distances []Distance, ch chan float64) {
-	route_pairs := make([][]string, 0)
-	for idx := 0; idx < len(route)-1; idx++ {
-		sorted_pair := []string{route[idx], route[idx+1]}
-		sort.Strings(sorted_pair)
-		//fmt.Printf("sorted_pair: %v\n", sorted_pair)
-		route_pairs = append(route_pairs, sorted_pair)
-	}
-
-	//fmt.Printf("route: %v\n", route)
-	//fmt.Printf("route_pairs: %v\n", route_pairs)
-
-	ch <- getRouteLength(route_pairs, distances)
-	//fmt.Printf("dst: %.2f\n", dst)
+	res := Result{Route: shortest_route[:len(shortest_route)-1], Length: fmt.Sprintf("%.2f", shortest_route_length)}
+	return res
 }
 
 func getRouteLength(pairs [][]string, distances []Distance) float64 {
@@ -124,7 +105,7 @@ func getDistance(p1 string, p2 string, distances []Distance) float64 {
 	return 0
 }
 
-func calcDistanceBetweenPoints(points []Point) []Distance {
+func CalcDistanceBetweenPoints(points []Point) []Distance {
 
 	distances := make([]Distance, 0)
 
