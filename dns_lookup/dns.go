@@ -10,18 +10,18 @@ func main() {
 	fmt.Println("dns lookup")
 
 	host := "yahoo.com"
-	addrs, err := DNSHost(host)
+	addrs, err := ResolveHost(host)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	} else {
-		fmt.Println("Host: %s\n", host)
-		for ip, idx := range addrs {
-			fmt.Printf("IP %s: %s\n", (idx + 1), ip)
+		fmt.Printf("Host: %s\n", host)
+		for _, ip := range addrs {
+			fmt.Printf("IP : %s\n", ip)
 		}
 	}
 }
 
-func DNSHost(h string) ([]string, error) {
+func ResolveHost(h string) ([]string, error) {
 	ret := make([]string, 0)
 	addrs, err := net.LookupHost(h)
 	if err != nil {
@@ -29,7 +29,7 @@ func DNSHost(h string) ([]string, error) {
 	} else {
 		for i := 0; i < len(addrs); i++ {
 			segs := strings.SplitAfter(addrs[i], " ")
-			ret = append(ret, segs)
+			ret = append(ret, segs...)
 		}
 		return ret, nil
 	}
