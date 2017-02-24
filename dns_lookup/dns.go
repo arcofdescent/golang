@@ -12,11 +12,11 @@ import (
 	"os"
 	"strings"
 	"time"
-	//"errors"
 )
 
+var ch = make(chan int)
+
 func main() {
-	fmt.Println("dns lookup")
 
 	if len(os.Args) < 2 {
 		log.Fatal("Specify file as argument")
@@ -29,12 +29,11 @@ func main() {
 
 	for _, h := range hosts {
 		fmt.Printf("Resolving host %s...\n", h)
+		go ResolveHost(h)
+	}
 
-		err := ResolveHost(h)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			continue
-		}
+	for range hosts {
+		<-ch
 	}
 
 	dur := time.Since(startTime)
@@ -64,6 +63,8 @@ func getHosts(fileName string) []string {
 }
 
 func ResolveHost(h string) error {
+	defer func() { ch <- 1 }()
+
 	ret := make([]string, 0)
 
 	addrs, err := net.LookupHost(h)
